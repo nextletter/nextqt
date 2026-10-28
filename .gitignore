@@ -1,0 +1,9 @@
+build/
+out/
+.cache/
+CMakeUserPresets.json
+*.o *.a *.so *.dylib *.dll *.exe *.pdb
+compile_commands.json
+# 密钥/凭据永不入库
+*.pem *.key id_* *_deploy *_deploy.pub
+.env
