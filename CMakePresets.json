@@ -1,0 +1,65 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": { "major": 3, "minor": 22, "patch": 0 },
+  "configurePresets": [
+    {
+      "name": "dev",
+      "displayName": "Dev (Debug, warnings as errors)",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build/dev",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "NQ_WERROR": "ON"
+      }
+    },
+    {
+      "name": "rel",
+      "displayName": "Release (LTO)",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build/rel",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "headless",
+      "displayName": "Headless (no platform, no GPU, golden)",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build/headless",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "NQ_PLATFORM": "none",
+        "NQ_GPU": "none",
+        "NQ_GOLDEN": "ON"
+      }
+    },
+    {
+      "name": "asan",
+      "displayName": "Sanitizers (ASan+UBSan)",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build/asan",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_FLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer"
+      }
+    }
+  ],
+  "buildPresets": [
+    { "name": "dev", "configurePreset": "dev" },
+    { "name": "rel", "configurePreset": "rel" },
+    { "name": "headless", "configurePreset": "headless" },
+    { "name": "asan", "configurePreset": "asan" }
+  ],
+  "testPresets": [
+    {
+      "name": "headless",
+      "configurePreset": "headless",
+      "output": { "outputOnFailure": true }
+    },
+    {
+      "name": "dev",
+      "configurePreset": "dev",
+      "output": { "outputOnFailure": true }
+    }
+  ]
+}

@@ -74,6 +74,19 @@
 | [docs/08-testing-perf.md](docs/08-testing-perf.md) | 可测试性注入点、测试金字塔、feature 可测的 DoD、录制回放、三层性能指标、计数器、预算即代码、回归防线 |
 | [docs/09-ui-runtime.md](docs/09-ui-runtime.md) | UI 执行层端口：native C++ 与 WASM 双适配器、统一 C ABI 契约、规范 IR 与等价性测试、沙箱配额、热重载、阶段与风险 |
 
+## 当前状态：M0 最小 MVP 已可运行
+
+```bash
+cmake --preset headless && cmake --build --preset headless -j
+ctest --preset headless            # 4/4 通过
+./build/headless/nq_hello out.ppm  # 渲染卡片 + 打印行为计数器
+```
+
+已落地：定点 `LayoutUnit`、注入式时钟、计数器注册表、显示列表 IR（可哈希/可序列化/4 字节对齐）、
+裁剪栈、路径自适应展平、矩形解析式覆盖率（Tier 0 原型）、路径参考光栅（16×16 超采样）、
+预乘 alpha 合成、确定性渲染、自研测试框架 + golden 比对、`-fno-exceptions -fno-rtti`、零第三方依赖。
+详见 [docs/10-mvp.md](docs/10-mvp.md)。
+
 ## 诚实的预期
 
 Qt 有 30 年控件与平台积累，Flutter 有 Google 的跨端网络效应。"超过"必须**按战场定义**：
