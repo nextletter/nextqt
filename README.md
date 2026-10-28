@@ -1,5 +1,10 @@
 # NextQt
 
+[![coverage](docs/coverage/badge.svg)](docs/coverage/index.html)
+[![tests](https://img.shields.io/badge/tests-49%20passing-2ea44f)](docs/10-mvp.md)
+[![deps](https://img.shields.io/badge/runtime%20deps-0-2ea44f)](docs/07-adapters.md)
+[![standard](https://img.shields.io/badge/C%2B%2B-20-00599c)](docs/01-architecture.md)
+
 > 下一代原生 UI 渲染引擎。目标：在 **帧时间 / 文本质量 / 原生融合 / 跨平台一致性** 四个维度同时超过 Qt 与 Flutter。
 
 ## 三条硬约束
@@ -58,6 +63,7 @@
 | 引擎 + 20 控件静态链接 | < 8 MB（release, LTO） | Flutter 20–40 MB；Qt6 ≥15 MB |
 | 跨 OS 渲染同一 app | golden 逐像素一致（CPU 真值） | 两家均因系统字体而漂移 |
 | feature 可测性 | 每 feature ≥3 golden + 计数器断言 + 回放 | 无对应要求 |
+| 测试覆盖率 | 行 ≥95%、分支 ≥80%（门禁） | 无可比公开承诺 |
 | 原生菜单/IME/无障碍 | ≥ Qt | Flutter 明显落后 |
 
 ## 文档索引
@@ -78,9 +84,16 @@
 
 ```bash
 cmake --preset headless && cmake --build --preset headless -j
-ctest --preset headless            # 4/4 通过
-./build/headless/nq_hello out.ppm  # 渲染卡片 + 打印行为计数器
+ctest --preset headless              # 5 个测试套件，49 个用例
+./build/headless/nq_hello out.ppm    # 渲染卡片 + 打印行为计数器
+./build/headless/nq_showcase         # 8 个 showcase 场景 → .ppm/.png
+
+./tools/coverage.sh                  # 覆盖率门禁：行 ≥95%、分支 ≥80%
 ```
+
+**覆盖率：行 98.9% / 分支 81.6%**（`src/**`，含头文件；不含示例与测试代码）
+→ 报告见 [docs/coverage/index.html](docs/coverage/index.html)，徽章 `docs/coverage/badge.svg` 由
+`tools/covreport.py` 从 gcov 数据生成，CI 低于阈值直接失败。
 
 已落地：定点 `LayoutUnit`、注入式时钟、计数器注册表、显示列表 IR（可哈希/可序列化/4 字节对齐）、
 裁剪栈、路径自适应展平、矩形解析式覆盖率（Tier 0 原型）、路径参考光栅（16×16 超采样）、

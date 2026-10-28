@@ -66,13 +66,7 @@ struct Surface {
   }
 };
 
-// 写 PPM(P6) 便于人工检查与 golden 对比（预乘 → 直通颜色）
-[[nodiscard]] bool write_ppm(const Surface& surface, const char* path);
-
 // 逐通道平均绝对差（0..255），用于图像对比
 [[nodiscard]] double mean_abs_diff(const Surface& a, const Surface& b);
-
-// 由文本构造 Surface 的最小占位图（M0 无字体栈：用块状字形画 "NQ" 风格图案）
-void draw_placeholder_glyphs(Surface& surface, int x, int y, int scale, Rgba8 color);
 
 }  // namespace nq

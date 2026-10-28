@@ -1,8 +1,10 @@
 #include "dl/display_list.h"
 #include "golden_testing.h"
 #include "nqtest.h"
+#include "raster/image_io.h"
 #include "raster/raster.h"
 #include "raster/surface.h"
+#include "text/bitmap_font.h"
 
 namespace {
 
@@ -23,7 +25,7 @@ Surface render_card_scene() {
 
   const dl::DisplayList list = b.finish();
   raster::replay(list, s);
-  draw_placeholder_glyphs(s, 36, 16, 2, premul(30, 34, 40));
+  text::draw_text(s, 36, 14, 2, premul(30, 34, 40), "NQ");
   return s;
 }
 

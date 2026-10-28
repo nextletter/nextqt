@@ -4,9 +4,11 @@
 
 ```bash
 cmake --preset headless && cmake --build --preset headless -j
-ctest --preset headless                    # 4 个测试套件，全绿
+ctest --preset headless                    # 5 个测试套件 / 49 个用例，全绿
 
 ./build/headless/nq_hello out.ppm          # 渲染一张卡片并打印计数器
+./build/headless/nq_showcase               # 8 个 showcase 场景（见 docs/11-showcase.md）
+./tools/coverage.sh                        # 覆盖率门禁：行 ≥95%、分支 ≥80%
 ```
 
 产物 `out.ppm` 已人工核对：圆角卡片、抗锯齿圆角、圆形头像、1px 分割线、带裁剪的进度条、占位字形。
@@ -35,6 +37,9 @@ ctest --preset headless                    # 4 个测试套件，全绿
 | 确定性渲染 | 全链路 | 同一场景两次渲染 `content_hash` 相同 |
 | golden 测试（自研 runner + `--update-golden`） | `tests/golden_testing.h` | `tests/golden/card_scene.ppm` 逐字节比对 |
 | 零第三方依赖 | 全部 | 仅 C++ 标准库 + libc |
+| 覆盖率门禁 | `tools/covreport.py` + `tools/coverage.sh` | 行 98.85%（771/780）、分支 81.61%（364/446），低于 95%/80% 直接失败 |
+| Showcase | `examples/showcase.cpp` | 8 个 480×300 场景，含哈希；见 docs/11-showcase.md |
+| 图像输出 | `src/raster/image_io.cpp` | 自研 PNG（stored deflate）+ PPM，零依赖 |
 | 无异常 / 无 RTTI | `cmake/CompilerWarnings.cmake` | `-fno-exceptions -fno-rtti`，错误走 `Result<T>` |
 
 ## 3. 构建矩阵
@@ -69,7 +74,8 @@ ctest --preset headless                    # 4 个测试套件，全绿
 
 ## 6. 提交校验清单（已经通过）
 
-- `ctest --preset headless`：4/4
-- `ctest --preset dev`（`-Werror`）：4/4
+- `ctest --preset headless`：5/5 套件（49 用例）
+- `ctest --preset dev`（`-Werror`）：5/5
+- `tools/coverage.sh`：行 98.85% / 分支 81.61%，门禁通过
 - 无第三方依赖：`ldd build/headless/nq_hello` 只含 libc/libstdc++
 - 单次 `cmake --build` 全量 < 10 s（4 核）

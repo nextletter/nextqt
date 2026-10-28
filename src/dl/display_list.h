@@ -19,6 +19,7 @@ enum class Op : uint16_t {
   kFillRRect,
   kFillCircle,
   kFillPath,
+  kFillRectGradient,
 };
 
 struct Header {
@@ -48,6 +49,13 @@ struct FillPathOp {
   uint32_t first_point;
   uint32_t point_count;
   Rgba8 color;
+};
+struct FillRectGradientOp {
+  float x, y, w, h;
+  Rgba8 from;
+  Rgba8 to;
+  uint32_t horizontal;  // 0 = 上→下，1 = 左→右
+  uint32_t reserved = 0;
 };
 
 // 路径构建：内部按展平容差把曲线转成折线（M0 阶段无曲线光栅）
@@ -98,6 +106,7 @@ class Builder {
   void fill_rrect(RectF r, float radius, Rgba8 color);
   void fill_circle(Vec2 center, float radius, Rgba8 color);
   void fill_path(const PathBuilder& path, Rgba8 color);
+  void fill_rect_gradient(RectF r, Rgba8 from, Rgba8 to, bool horizontal);
 
   [[nodiscard]] size_t byte_size() const noexcept { return ops_.size(); }
   [[nodiscard]] RectF bounds() const noexcept { return bounds_; }

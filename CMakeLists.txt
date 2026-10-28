@@ -34,6 +34,7 @@ nq_engine_flags(nq_dl)
 add_library(nq_raster STATIC
   src/raster/surface.cpp
   src/raster/raster.cpp
+  src/raster/image_io.cpp
 )
 target_link_libraries(nq_raster PUBLIC nq_dl)
 nq_engine_flags(nq_raster)
@@ -43,10 +44,19 @@ if(NQ_GOLDEN AND NOT MSVC)
   target_compile_options(nq_raster PRIVATE -ffp-contract=off)
 endif()
 
+# 文本层（M0 为位图占位；M1 起替换为 Unicode/整形/字体栈，接口不变）
+add_library(nq_text STATIC src/text/bitmap_font.cpp)
+target_link_libraries(nq_text PUBLIC nq_raster)
+nq_engine_flags(nq_text)
+
 if(NQ_BUILD_EXAMPLES)
   add_executable(nq_hello examples/hello_card.cpp)
-  target_link_libraries(nq_hello PRIVATE nq_raster)
+  target_link_libraries(nq_hello PRIVATE nq_text)
   nq_engine_flags(nq_hello)
+
+  add_executable(nq_showcase examples/showcase.cpp)
+  target_link_libraries(nq_showcase PRIVATE nq_text)
+  nq_engine_flags(nq_showcase)
 endif()
 
 if(NQ_BUILD_TESTS)
@@ -57,9 +67,9 @@ if(NQ_BUILD_TESTS)
   enable_testing()
   file(MAKE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/tests/golden")
 
-  foreach(test_name base dl raster golden)
+  foreach(test_name base dl raster golden more)
     add_executable(test_${test_name} tests/test_${test_name}.cpp)
-    target_link_libraries(test_${test_name} PRIVATE nq_raster nqtest)
+    target_link_libraries(test_${test_name} PRIVATE nq_text nqtest)
     target_include_directories(test_${test_name} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/tests")
     target_compile_definitions(test_${test_name} PRIVATE
       NQ_GOLDEN_DIR="${CMAKE_CURRENT_SOURCE_DIR}/tests/golden"

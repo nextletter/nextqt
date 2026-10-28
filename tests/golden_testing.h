@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "nqtest.h"
+#include "raster/image_io.h"
 #include "raster/surface.h"
 
 namespace nqtest {

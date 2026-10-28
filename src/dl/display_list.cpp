@@ -217,6 +217,13 @@ void Builder::fill_path(const PathBuilder& path, Rgba8 color) {
   bounds_ = unite(bounds_, RectF{minx, miny, maxx - minx, maxy - miny});
 }
 
+void Builder::fill_rect_gradient(RectF r, Rgba8 from, Rgba8 to, bool horizontal) {
+  if (r.is_empty()) return;
+  push(Op::kFillRectGradient,
+       FillRectGradientOp{r.x, r.y, r.w, r.h, from, to, horizontal ? 1u : 0u, 0});
+  bounds_ = unite(bounds_, r);
+}
+
 DisplayList Builder::finish() {
   DisplayList list;
   list.ops = std::move(ops_);

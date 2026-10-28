@@ -1,0 +1,148 @@
+{
+  "lines": {
+    "hit": 771,
+    "total": 780,
+    "percent": 98.85
+  },
+  "branches": {
+    "hit": 364,
+    "total": 446,
+    "percent": 81.61
+  },
+  "thresholds": {
+    "min_lines": 95.0,
+    "min_branches": 80.0
+  },
+  "files": {
+    "src/base/arena.cpp": {
+      "lines": {
+        "hit": 57,
+        "total": 57
+      },
+      "branches": {
+        "hit": 23,
+        "total": 26
+      }
+    },
+    "src/base/diag.cpp": {
+      "lines": {
+        "hit": 44,
+        "total": 48
+      },
+      "branches": {
+        "hit": 13,
+        "total": 14
+      }
+    },
+    "src/base/diag.h": {
+      "lines": {
+        "hit": 5,
+        "total": 5
+      },
+      "branches": {
+        "hit": 0,
+        "total": 0
+      }
+    },
+    "src/base/geom.h": {
+      "lines": {
+        "hit": 22,
+        "total": 22
+      },
+      "branches": {
+        "hit": 36,
+        "total": 48
+      }
+    },
+    "src/base/hash.h": {
+      "lines": {
+        "hit": 23,
+        "total": 23
+      },
+      "branches": {
+        "hit": 4,
+        "total": 4
+      }
+    },
+    "src/dl/display_list.cpp": {
+      "lines": {
+        "hit": 164,
+        "total": 169
+      },
+      "branches": {
+        "hit": 51,
+        "total": 60
+      }
+    },
+    "src/dl/display_list.h": {
+      "lines": {
+        "hit": 12,
+        "total": 12
+      },
+      "branches": {
+        "hit": 0,
+        "total": 0
+      }
+    },
+    "src/raster/image_io.cpp": {
+      "lines": {
+        "hit": 97,
+        "total": 97
+      },
+      "branches": {
+        "hit": 32,
+        "total": 32
+      }
+    },
+    "src/raster/image_io.h": {
+      "lines": {
+        "hit": 6,
+        "total": 6
+      },
+      "branches": {
+        "hit": 0,
+        "total": 0
+      }
+    },
+    "src/raster/raster.cpp": {
+      "lines": {
+        "hit": 274,
+        "total": 274
+      },
+      "branches": {
+        "hit": 152,
+        "total": 178
+      }
+    },
+    "src/raster/surface.cpp": {
+      "lines": {
+        "hit": 17,
+        "total": 17
+      },
+      "branches": {
+        "hit": 14,
+        "total": 18
+      }
+    },
+    "src/raster/surface.h": {
+      "lines": {
+        "hit": 23,
+        "total": 23
+      },
+      "branches": {
+        "hit": 13,
+        "total": 38
+      }
+    },
+    "src/text/bitmap_font.cpp": {
+      "lines": {
+        "hit": 27,
+        "total": 27
+      },
+      "branches": {
+        "hit": 26,
+        "total": 28
+      }
+    }
+  }
+}

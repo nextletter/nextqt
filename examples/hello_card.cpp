@@ -5,8 +5,10 @@
 
 #include "base/diag.h"
 #include "dl/display_list.h"
+#include "raster/image_io.h"
 #include "raster/raster.h"
 #include "raster/surface.h"
+#include "text/bitmap_font.h"
 
 namespace {
 
@@ -36,7 +38,8 @@ Surface render(int width, int height) {
   const dl::DisplayList list = builder.finish();
   raster::replay(list, surface);
 
-  draw_placeholder_glyphs(surface, 72, 34, 4, premul(24, 28, 34));
+  text::draw_text(surface, 76, 34, 3, premul(24, 28, 34), "NEXTQT");
+  text::draw_text(surface, 76, 60, 1, premul(122, 131, 145), "M0 HEADLESS RENDERER");
   return surface;
 }
 
