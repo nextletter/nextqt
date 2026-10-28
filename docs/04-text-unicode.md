@@ -13,7 +13,9 @@
 | 可确定性测试（同一版本引擎在 Win/mac/Linux 输出相同的 run） | 需要 conformance 测试基建 |
 | 可深度优化（整形结果缓存、按需惰性表、SIMD 分段） | 无现成生态与专家 |
 
-**回退开关**：编译选项 `NQ_TEXT_BACKEND=own|system_hb`。默认 `own`；`system_hb` 仅用于应急排障（链接存在的系统 HarfBuzz，接口完全一致）。它不进默认产物，因此不违反零依赖政策。
+**回退路径**：整形是一个运行时端口（`port::shape`），自研实现名为 `own`。可选适配器 `harfbuzz`（C ABI 封装、启动时按有序链选择）既不违反零依赖政策，也提供了应急通道；见 [07-adapters.md](07-adapters.md) §2.2。它的另一重身份是 CI 里的对照 oracle。
+
+同样的适配器形态适用于字体解析（FreeType）、Unicode/BiDi（ICU4C / SheenBidi）、图像解码——**任何不得不引入的第三方都只能以这种形态存在**。
 
 ## 2. 分层
 
@@ -151,7 +153,7 @@ Tier 之外的脚本**回退到逐字符渲染并明确标记**（devtools 显�
 | 被测 | Oracle | 语料 |
 |------|--------|------|
 | 规范化/分段/BiDi/换行 | Unicode 官方测试文件（权威，无需第三方） | `NormalizationTest` `GraphemeBreakTest` `LineBreakTest` `BidiTest` `BidiCharacterTest` |
-| 整形 | HarfBuzz（CI 容器内） | 官方 conformance + 多语种语料（Noto 全脚本样本） |
+| 整形 | HarfBuzz（CI 容器内 + 可选运行时适配器） | 官方 conformance + 多语种语料（Noto 全脚本样本） |
 | 字形光栅 | FreeType（CI 容器内） | 掩码逐像素对比，允许 ≤2/255 差异 |
 | 文本布局 | 自建黄金用例（截图对比） | 50 个真实 UI 场景 |
 

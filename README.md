@@ -41,7 +41,8 @@
 | 平台系统库（仅 `src/platform/*` 内） | 发行版必备系统库，必须被 `nq_platform_*` 封装，核心层不可见 | fontconfig（仅枚举字体路径）、dbus（仅托盘/menu）、CoreText（仅 iOS 取系统字体数据） |
 | 构建期工具 | 编译器、DXC、CMake、脚本 | clang/gcc/msvc, dxc, cmake, 自研 ucdgen |
 | 仅测试/CI | 作为**对照 oracle**，绝不进产物 | HarfBuzz（整形对照）、FreeType（字形位图对照）、ICU（BiDi/换行对照）、resvg（SVG 黄金图） |
-| 禁止 | 任何进入产物的第三方库 | Skia、HarfBuzz、ICU、FreeType、SDL、GLFW、wgpu、fmt、Catch2 |
+| 禁止 | 任何**未经端口封装**的第三方库进入产物 | Skia、HarfBuzz、ICU、FreeType、SDL、GLFW、wgpu、fmt、Catch2 直接 `#include` |
+| **例外通道** | 必须依赖时，**只能**做成可替换适配器（C ABI、能力探测、可降级、过 conformance） | 见 [docs/07-adapters.md](docs/07-adapters.md) |
 
 > 这条政策的商业价值：无 LGPL/LGPL-linking 义务、无 FTL 署名要求、可闭源静态链接、可审计（供应链攻击面 ≈ 系统 API）、WASM 体积可控。
 > 代价：整形一致性与字体解析是最大的工期风险，见 [docs/04-text-unicode.md](docs/04-text-unicode.md) 的分级策略。
@@ -56,6 +57,7 @@
 | 点击 → 像素改变 | < 16 ms（目标 8 ms） | 两家 1–2 帧 |
 | 引擎 + 20 控件静态链接 | < 8 MB（release, LTO） | Flutter 20–40 MB；Qt6 ≥15 MB |
 | 跨 OS 渲染同一 app | golden 逐像素一致（CPU 真值） | 两家均因系统字体而漂移 |
+| feature 可测性 | 每 feature ≥3 golden + 计数器断言 + 回放 | 无对应要求 |
 | 原生菜单/IME/无障碍 | ≥ Qt | Flutter 明显落后 |
 
 ## 文档索引
@@ -68,6 +70,8 @@
 | [docs/04-text-unicode.md](docs/04-text-unicode.md) | UCD 表生成、规范化、分段、BiDi、换行、OpenType 布局、字体格式、编辑内核、oracle 策略 |
 | [docs/05-platform.md](docs/05-platform.md) | 平台矩阵、窗口/合成/输入/IME/无障碍/DnD/菜单/多窗口、移动端与 WASM、系统字体与图像解码 |
 | [docs/06-roadmap.md](docs/06-roadmap.md) | 分阶段计划（三轨并行）、基准套件、ADR、风险与 kill criteria、待拍板问题 |
+| [docs/07-adapters.md](docs/07-adapters.md) | 可插拔后端：端口/适配器边界、C ABI 契约、粒度红线、选择与降级、许可证隔离、端口清单 |
+| [docs/08-testing-perf.md](docs/08-testing-perf.md) | 可测试性注入点、测试金字塔、feature 可测的 DoD、录制回放、三层性能指标、计数器、预算即代码、回归防线 |
 
 ## 诚实的预期
 

@@ -15,7 +15,7 @@
 
 | 阶段 | 时间 | 交付 | 出口标准（gate） |
 |------|------|------|------------------|
-| **M0 骨架** | 1–2 月 | `base`（Result/容器/arena/字符串/数学）、CMake presets、自研测试框架、`dl` IR、CPU 光栅（rect/rrect/path）、golden runner、headless 构建 | `cmake --preset headless && ctest` 全绿；圆角矩形/圆/路径 golden 与手算参考图逐像素一致 |
+| **M0 骨架** | 1–2 月 | `base`（Result/容器/arena/字符串/数学）、CMake presets、自研测试框架、**注入点（Clock/Rng/Fs/Scheduler/Alloc）+ 计数器注册表 + 基准骨架**、`dl` IR、CPU 光栅（rect/rrect/path）、golden runner、headless 构建 | `cmake --preset headless && ctest` 全绿；圆角矩形/圆/路径 golden 与手算参考图逐像素一致；**注入点被绕过时代码检查报错**（见 08 §1） |
 | **M1 文本地基** | 2–4 月 | ucdgen、规范化、分段、换行、sfnt+glyf 解析、Tier A 整形、A8 字形 atlas | Unicode 官方 conformance 100%；拉丁整形 vs HarfBuzz ≥99.9% |
 | **M2 布局与场景** | 3–5 月 | `LayoutUnit`、Row/Column/Stack/Scroll、InlineText 断行、信号系统、Element 树、record | 5k 节点布局 < 3 ms；1% 脏区布局 < 0.5 ms |
 | **M3 GPU 起步** | 4–6 月 | Vulkan HAL、Tier 0/1 GPU 管线、atlas 上传、PSO 缓存、X11 窗口 + 输入 | 1080p@60 空转 < 2 ms CPU；首帧 < 150 ms |
@@ -75,6 +75,8 @@ Qt6 Widgets 等价场景、Qt Quick 等价场景、Flutter 3.x desktop 等价场
 | 生态/控件数量不足 | 高 | 高 | 先做 20 个高质量控件 + 迁移指南；后续社区 | 提供 Qt/QML 迁移工具降低采用成本 |
 
 ## 6. kill criteria（诚实止损）
+
+所有指标的表达方式与测量方法见 [08-testing-perf.md](08-testing-perf.md)；不得用"感觉变快了"作为阶段验收。
 
 - **M1**：Unicode conformance < 95% 或拉丁整形一致率 < 98% → 重新评估自研整形，改为"自研 unicode/bidi/换行 + 外挂整形后端"。
 - **M2**：5k 节点布局 > 6 ms → 布局架构回炉（缓存/fragment 设计），不进入 GPU 阶段。

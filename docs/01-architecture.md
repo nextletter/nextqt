@@ -31,7 +31,7 @@
 ```
 
 **依赖方向单向向下，L0–L4 不得 include `src/platform/*`。**
-核心层必须能这样构建并通过全部 golden 测试：
+核心层（含全部端口的内置实现）必须能这样构建并通过全部 golden 测试：
 
 ```bash
 cmake --preset headless -DNQ_PLATFORM=none -DNQ_GPU=none   # 纯 CPU，无 OS 头文件
@@ -165,7 +165,8 @@ cmake --preset ci-werror    # -Wall -Wextra -Wconversion -Werror + clang-tidy
 
 - 构建期代码生成：`ucdgen`（Unicode 表）、`shadergen`（shader 变体）、`fontdump`（仅调试）。生成物进 `build/gen/`，不提交。
 - 编译时间预算：8 核 clean build < 3 min；核心模块支持 `NQ_UNITY_BUILD` 快速迭代。
-- 测试：自研 `tools/nqtest`（注册式、无异常、支持 fixture + golden + 基准），不引入 Catch2/gtest。
+- 测试：自研 `tools/nqtest`（无异常、注册式、fixture + golden + snapshot + 基准 + 分片），不引入 Catch2/gtest。细节见 [08-testing-perf.md](08-testing-perf.md)。
+- 注入点：`Clock/Rng/FileSystem/TaskScheduler/Alloc/Diag` 统一放在 `nq::Host`，核心层不得直调 OS；`NQ_HOST_STATIC_ANALYSIS` 在 CI 中拒绝绕过。
 - CI 必须跑：ASan/UBSan/TSan、libFuzzer（字体解析、PNG 解码、显示列表反序列化）、golden、benchmark 回归门（>5% 退化即失败）。
 
 ## 10. 热重载
@@ -182,7 +183,18 @@ extern "C" NQ_EXPORT bool     nq_app_migrate(void* old_state, void* new_state);
 - **仅状态层热重载**：不重载引擎自身（避免 GPU 资源/线程状态损坏）。改了引擎代码就重启，`<200ms` 的冷启动让这件事可以接受。
 - Linux 需 `-fvisibility=hidden` + 版本脚本避免符号劫持；Windows 必须真正 `FreeLibrary`（要求 UI 库无静态含状态的单例，用 `NQ_NO_STATIC_STATE` 编译选项强制）。
 
-## 11. 与其他语言 / 宿主程序
+## 11. 端口与适配器
+
+内核不变量（`dl` / `layout` / `scene` / `compositor`）不设端口、不可替换；外围能力一律走端口，第三方实现只能作为适配器存在：
+
+| 形态 | 用于 | 选择时机 | 开销 |
+|------|------|----------|------|
+| 编译期端口（`NQ_GPU_BACKEND=vk`） | GPU HAL、窗口/输入 | 链接期绑定 | 0（可内联） |
+| 运行时适配器（C ABI + `nq_host_api`） | 整形、字体解析、Unicode/BiDi、图像解码、无障碍桥 | 启动时按有序链选择 | 每 run / 每图元 / 每图像级 |
+
+**粒度红线：可替换的粒度必须 ≥ 1 µs**；每像素与每 drawcall 的路径永远编译期绑定。适配器必须通过 conformance 测试、只用 host allocator、在版本不匹配时安全降级。契约与端口清单见 [07-adapters.md](07-adapters.md)。
+
+## 12. 与其他语言 / 宿主程序
 
 - 产物 `libnextqt.so` 只暴露 C ABI（`src/abi`）：版本化结构体（首字段 `uint32_t size`）、句柄、错误码。**STL 类型禁止跨界**。
 - C++ 用户拿 `nq/nq.hpp`（RAII 包装，header-only）+ 静态库。

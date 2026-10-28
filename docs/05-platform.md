@@ -63,10 +63,10 @@ class App {             // 事件循环、RunLoop、唤醒、定时器、剪贴�
 
 | 例外 | 理由 | 边界 |
 |------|------|------|
-| 系统字体枚举/取数 | iOS/Android 上系统字体数据只能通过 CoreText/AssetManager 拿到；桌面需要尊重用户安装的字体 | `platform::FontProvider` 只负责"列出字体 + 给出文件字节/mmap"，**解析与整形仍是自研** |
+| 系统字体枚举/取数 | iOS/Android 上系统字体数据只能通过 CoreText/AssetManager 拿到；桌面需要尊重用户安装的字体 | `platform::FontProvider` 只负责"列出字体 + 给出文件字节/mmap"，**解析与整形仍是自研**；它是端口 `port::font` 的一个来源适配器 |
 | 系统图像解码 | WIC(macOS ImageIO / Android BitmapFactory) 覆盖 HEIC/AVIF/WebP 等格式，自研不现实 | 仅作为 `ImageProvider` 的一档；自有 PNG/JPEG/QOI 解码器优先（可控、可 fuzz、跨平台一致） |
 
-对应编译开关：`NQ_SYSTEM_FONTS=ON|OFF`、`NQ_SYSTEM_IMAGE_CODECS=ON|OFF`。关闭后仍能完整运行（只是字体集合受限），用于嵌入式与 WASM。
+对应编译开关：`NQ_SYSTEM_FONTS=ON|OFF`、`NQ_SYSTEM_IMAGE_CODECS=ON|OFF`。两者都实现为端口适配器（`port::font::source`、`port::image`），关闭后仍能完整运行（只是字体集合/格式受限），用于嵌入式与 WASM。
 
 ## 6. 移动端与 WASM
 
