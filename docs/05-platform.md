@@ -10,7 +10,7 @@
 | macOS 11+ | Metal | `NSView` + `CAMetalLayer` | `NSTextInputClient` | `NSAccessibility` | M8 |
 | iOS 14+ | Metal | `UIView` + `CAMetalLayer` | `UITextInput` | `UIAccessibility` | M14 |
 | Android 8+ | Vulkan / GLES3 | `SurfaceView`/`TextureView` | `InputConnection` | `AccessibilityNodeProvider` | M14 |
-| WASM | WebGPU (Canvas2D 兜底) | `canvas` + `requestAnimationFrame` | DOM 隐藏输入元素 | ARIA 映射 | M16 |
+| WASM | WebGPU (Canvas2D 兜底) | `canvas` + `requestAnimationFrame` | DOM 隐藏输入元素 | ARIA 映射 | M12（引擎自身也编译为 wasm） |
 
 **平台层铁律**：`src/platform/*` 之外禁止 include 任何 OS 头文件；平台层只实现 `nq::platform` 里声明的接口，不反向依赖 UI 层。新增平台 = 实现 7 个接口 + 1 个 CMake target。
 
@@ -74,7 +74,7 @@ class App {             // 事件循环、RunLoop、唤醒、定时器、剪贴�
 |------|----------|------|
 | iOS | 无 JIT（本就无 VM）、内存告警、ProMotion 120Hz、`UIScrollView` 手感预期 | `CADisplayLink` 取帧、`didReceiveMemoryWarning` → `trim_to(hard)` |
 | Android | 碎片化 GPU 驱动、`Choreographer`、低内存机 | GLES3 兜底、Tier 3 光栅、可选"低端机降级档" |
-| WASM | 无文件系统/线程默认关闭、Canvas 尺寸限制、IME 靠隐藏 DOM | 单线程默认（`SharedArrayBuffer` opt-in）、字体走 `fetch`、光栅回退到 Tier 1/3、无 GPU 时用 CPU+`putImageData` |
+| WASM | 无文件系统/线程默认关闭、Canvas 尺寸限制、IME 靠隐藏 DOM | 引擎与 UI 执行层**同栈编译**（同一线性内存，零拷贝），见 [09-ui-runtime.md](09-ui-runtime.md)；单线程默认（`SharedArrayBuffer` opt-in）、字体走 `fetch`、光栅回退 Tier 1/3、无 GPU 时 CPU + `putImageData` |
 
 ## 7. 打包与分发
 

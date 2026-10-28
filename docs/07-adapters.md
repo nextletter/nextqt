@@ -33,7 +33,7 @@ using ActiveGpu = NQ_GPU_BACKEND;        // 编译期选择：vk | mtl | d3d12 |
 
 ### 2.2 外挂适配器（运行时加载，C ABI）
 
-整形、字体解析、图像解码、BiDi/分段这类"每 run / 每图元 / 每图像"粒度、且第三方确实可能更强的部分，走动态适配器：
+整形、字体解析、图像解码、BiDi/分段、**UI 执行层**这类"每 run / 每图元 / 每图像 / 每帧"粒度、且实现可能多种多样的部分，走动态适配器：
 
 ```c
 /* nq_port.h —— 纯 C，无 C++ 类型跨越 ABI（MSVC/GCC/Clang 可互操作） */
@@ -145,6 +145,7 @@ CI 矩阵：`adapter ∈ {own, harfbuzz, icu, fribidi, libjpeg-turbo, ...} × sa
 | `window` | own per-OS | SDL2 / GLFW（仅移植辅助） | M3 |
 | `a11y` | own per-OS | AT-SPI2 / ATK | M7 |
 | `clipboard` `menu` `dialog` | own per-OS | 平台库 | M3 起 |
+| **`ui_runtime`** | native C++（`native_static` / `native_dylib`） | WASM（`wasm_aot` / `wasm_interp` / `wasm_browser`） | M0 static → M9 dylib → M10 wasm，见 [09-ui-runtime.md](09-ui-runtime.md) |
 | `decode_sandbox` | 无 | 子进程解码服务（隔离高风险解码） | M12 可选 |
 
 ## 8. 反模式（明确禁止）

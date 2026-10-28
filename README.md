@@ -24,7 +24,7 @@
 | 3 | **文本一等公民** | 两家被骂最狠处 | 自研 Unicode/整形/字体栈 + 自带文本编辑内核（grapheme、BiDi caret、IME 组合、COLRv1） |
 | 4 | **原生融合，不是一块画布** | Flutter | 原生菜单/右键菜单/对话框、完整 IME 协议、无障碍树增量同步、双向平台视图嵌入、真多窗口 |
 | 5 | **确定性跨平台像素** | 两家都做不到 | 定点布局（`LayoutUnit` i32/64）+ 自研整形 + **随包字体**；系统字体差异不再改变布局。golden 测试跨 OS 逐像素可比 |
-| 6 | **零依赖可审计 / 可静态链接** | Qt 的 LGPL 陷阱、Flutter 的 Dart VM | 单许可证（Apache-2.0 OR MIT）、无 LGPL、无 VM、无 JIT、可裁到 8MB、可 WASM |
+| 6 | **零依赖可审计 / 可静态链接** | Qt 的 LGPL 陷阱、Flutter 的 Dart VM | 单许可证（Apache-2.0 OR MIT）、无 LGPL、可裁到 8MB；**UI 执行层是端口**：默认直接 C++（零边界开销），需要多语言/插件时切换为 WASM 适配器 |
 
 ## 明确不做
 
@@ -72,6 +72,7 @@
 | [docs/06-roadmap.md](docs/06-roadmap.md) | 分阶段计划（三轨并行）、基准套件、ADR、风险与 kill criteria、待拍板问题 |
 | [docs/07-adapters.md](docs/07-adapters.md) | 可插拔后端：端口/适配器边界、C ABI 契约、粒度红线、选择与降级、许可证隔离、端口清单 |
 | [docs/08-testing-perf.md](docs/08-testing-perf.md) | 可测试性注入点、测试金字塔、feature 可测的 DoD、录制回放、三层性能指标、计数器、预算即代码、回归防线 |
+| [docs/09-ui-runtime.md](docs/09-ui-runtime.md) | UI 执行层端口：native C++ 与 WASM 双适配器、统一 C ABI 契约、规范 IR 与等价性测试、沙箱配额、热重载、阶段与风险 |
 
 ## 诚实的预期
 

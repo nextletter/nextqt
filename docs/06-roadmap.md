@@ -24,10 +24,10 @@
 | **M6 Tier B 整形** | 6–9 月 | 阿拉伯/希伯来/天城文/孟加拉/泰米尔、CFF 解释器、变体字体 | Tier B 整形 ≥98% 一致；Noto 全脚本样本无崩溃 |
 | **M7 Windows** | 8–10 月 | D3D12 后端、Win32 窗口、TSF、UIA、原生菜单、DnD、PMv2 DPI | 与 M4 同等性能指标；屏幕阅读器清单通过 |
 | **M8 macOS** | 9–12 月 | Metal 后端、Cocoa、`NSTextInputClient`、`NSAccessibility`、120 Hz | ProMotion 下滚动 0 掉帧 |
-| **M9 1.0-beta** | 12–15 月 | 20 个内置控件、主题系统、devtools、热重载、打包、3 个真实示例应用 | 3 个 app 在 Win/mac/Linux 跨平台 golden 一致；启动 < 100 ms |
+| **M9 1.0-beta** | 12–15 月 | 20 个内置控件、主题系统、devtools、`native_dylib` 热重载、UI 执行层端口契约冻结、打包、3 个真实示例应用 | 3 个 app 在 Win/mac/Linux 跨平台 golden 一致；启动 < 100 ms；契约一致性测试通过 |
 | **M10 性能硬化** | 15–18 月 | 并行布局、瓦片预取、Tier 2 compute 覆盖、模糊/backdrop 优化、内存裁剪 | 全部基准达标（§3），无 P0 内存泄漏 |
 | **M11 1.0** | 18–20 月 | 文档、示例、ABI 冻结、CI 矩阵（3 OS × 2 编译器 × ASan/UBSan/TSan） | 连续 30 天无回归；benchmark 无 >5% 退化 |
-| **M12+ 扩张** | 20 月+ | Android/iOS/WASM、Tier C 脚本、PDF/SVG 导出、远程渲染 | 按市场反馈排优先级 |
+| **M12+ 扩张** | 20 月+ | Android/iOS、WASM 适配器（AOT/沙箱插件/浏览器）、Tier C 脚本、PDF/SVG 导出、远程渲染 | 见 [09-ui-runtime.md](09-ui-runtime.md) §10 |
 
 ## 3. 基准套件（可复现、可门禁）
 

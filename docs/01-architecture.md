@@ -191,8 +191,9 @@ extern "C" NQ_EXPORT bool     nq_app_migrate(void* old_state, void* new_state);
 |------|------|----------|------|
 | 编译期端口（`NQ_GPU_BACKEND=vk`） | GPU HAL、窗口/输入 | 链接期绑定 | 0（可内联） |
 | 运行时适配器（C ABI + `nq_host_api`） | 整形、字体解析、Unicode/BiDi、图像解码、无障碍桥 | 启动时按有序链选择 | 每 run / 每图元 / 每图像级 |
+| UI 执行层端口（`port::ui_runtime`） | **直接 C++**（`native_static` 零边界 / `native_dylib` 热重载）或 **WASM**（AOT / 解释 / 浏览器） | 启动时选择；插件强制 wasm | 每帧 ≤ 50 次边界调用 |
 
-**粒度红线：可替换的粒度必须 ≥ 1 µs**；每像素与每 drawcall 的路径永远编译期绑定。适配器必须通过 conformance 测试、只用 host allocator、在版本不匹配时安全降级。契约与端口清单见 [07-adapters.md](07-adapters.md)。
+**粒度红线：可替换的粒度必须 ≥ 1 µs**；每像素与每 drawcall 的路径永远编译期绑定。适配器必须通过 conformance 测试、只用 host allocator、在版本不匹配时安全降级。契约与端口清单见 [07-adapters.md](07-adapters.md)；UI 执行层的双适配器（native / WASM）见 [09-ui-runtime.md](09-ui-runtime.md)。
 
 ## 12. 与其他语言 / 宿主程序
 
