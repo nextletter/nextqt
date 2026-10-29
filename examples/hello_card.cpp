@@ -8,13 +8,13 @@
 #include "raster/image_io.h"
 #include "raster/raster.h"
 #include "raster/surface.h"
-#include "text/bitmap_font.h"
+#include "text/font.h"
 
 namespace {
 
 using namespace nq;
 
-Surface render(int width, int height) {
+Surface render(int width, int height, text::Font& font) {
   Surface surface(width, height);
   surface.fill(premul(245, 246, 248));
 
@@ -38,8 +38,8 @@ Surface render(int width, int height) {
   const dl::DisplayList list = builder.finish();
   raster::replay(list, surface);
 
-  text::draw_text(surface, 76, 34, 3, premul(24, 28, 34), "NEXTQT");
-  text::draw_text(surface, 76, 60, 1, premul(122, 131, 145), "M0 HEADLESS RENDERER");
+  font.draw(surface, 76, 52, "NextQt", 22.0f, premul(24, 28, 34));
+  font.draw(surface, 76, 70, "M0 renderer · zero deps", 11.0f, premul(122, 131, 145));
   return surface;
 }
 
@@ -47,7 +47,12 @@ Surface render(int width, int height) {
 
 int main(int argc, char** argv) {
   const char* path = argc > 1 ? argv[1] : "out.ppm";
-  const Surface surface = render(320, 160);
+  auto font_result = text::Font::load_file(NQ_BUNDLED_FONT);
+  if (!font_result) {
+    std::fprintf(stderr, "cannot load bundled font\n");
+    return 1;
+  }
+  const Surface surface = render(320, 160, **font_result);
   if (!write_ppm(surface, path)) {
     std::fprintf(stderr, "failed to write %s\n", path);
     return 1;

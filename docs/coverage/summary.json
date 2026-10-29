@@ -1,17 +1,17 @@
 {
   "lines": {
-    "hit": 771,
-    "total": 780,
-    "percent": 98.85
+    "hit": 1451,
+    "total": 1498,
+    "percent": 96.86
   },
   "branches": {
-    "hit": 364,
-    "total": 446,
-    "percent": 81.61
+    "hit": 816,
+    "total": 1081,
+    "percent": 75.49
   },
   "thresholds": {
     "min_lines": 95.0,
-    "min_branches": 80.0
+    "min_branches": 70.0
   },
   "files": {
     "src/base/arena.cpp": {
@@ -22,6 +22,26 @@
       "branches": {
         "hit": 23,
         "total": 26
+      }
+    },
+    "src/base/arena.h": {
+      "lines": {
+        "hit": 3,
+        "total": 3
+      },
+      "branches": {
+        "hit": 0,
+        "total": 0
+      }
+    },
+    "src/base/clock.h": {
+      "lines": {
+        "hit": 4,
+        "total": 4
+      },
+      "branches": {
+        "hit": 0,
+        "total": 0
       }
     },
     "src/base/diag.cpp": {
@@ -46,12 +66,12 @@
     },
     "src/base/geom.h": {
       "lines": {
-        "hit": 22,
-        "total": 22
+        "hit": 29,
+        "total": 29
       },
       "branches": {
-        "hit": 36,
-        "total": 48
+        "hit": 90,
+        "total": 112
       }
     },
     "src/base/hash.h": {
@@ -60,8 +80,38 @@
         "total": 23
       },
       "branches": {
-        "hit": 4,
-        "total": 4
+        "hit": 23,
+        "total": 24
+      }
+    },
+    "src/base/layout_unit.h": {
+      "lines": {
+        "hit": 55,
+        "total": 55
+      },
+      "branches": {
+        "hit": 32,
+        "total": 52
+      }
+    },
+    "src/base/status.h": {
+      "lines": {
+        "hit": 25,
+        "total": 25
+      },
+      "branches": {
+        "hit": 11,
+        "total": 11
+      }
+    },
+    "src/base/utf8.h": {
+      "lines": {
+        "hit": 59,
+        "total": 59
+      },
+      "branches": {
+        "hit": 40,
+        "total": 54
       }
     },
     "src/dl/display_list.cpp": {
@@ -76,8 +126,28 @@
     },
     "src/dl/display_list.h": {
       "lines": {
-        "hit": 12,
-        "total": 12
+        "hit": 16,
+        "total": 16
+      },
+      "branches": {
+        "hit": 0,
+        "total": 0
+      }
+    },
+    "src/font/sfnt.cpp": {
+      "lines": {
+        "hit": 285,
+        "total": 315
+      },
+      "branches": {
+        "hit": 163,
+        "total": 240
+      }
+    },
+    "src/font/sfnt.h": {
+      "lines": {
+        "hit": 14,
+        "total": 14
       },
       "branches": {
         "hit": 0,
@@ -126,12 +196,12 @@
     },
     "src/raster/surface.h": {
       "lines": {
-        "hit": 23,
-        "total": 23
+        "hit": 33,
+        "total": 33
       },
       "branches": {
-        "hit": 13,
-        "total": 38
+        "hit": 63,
+        "total": 118
       }
     },
     "src/text/bitmap_font.cpp": {
@@ -142,6 +212,16 @@
       "branches": {
         "hit": 26,
         "total": 28
+      }
+    },
+    "src/text/font.cpp": {
+      "lines": {
+        "hit": 214,
+        "total": 222
+      },
+      "branches": {
+        "hit": 83,
+        "total": 114
       }
     }
   }

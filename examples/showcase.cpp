@@ -14,11 +14,20 @@
 #include "raster/image_io.h"
 #include "raster/raster.h"
 #include "raster/surface.h"
-#include "text/bitmap_font.h"
+#include "text/font.h"
 
 namespace {
 
 using namespace nq;
+
+// 唯一字体实例（随包 Inter，见 data/fonts/LICENSE.txt）：跨平台像素一致的前提
+text::Font* g_font = nullptr;
+
+// top 为字面上边缘，内部换算基线
+void text_at(Surface& s, float x, float top, float px, Rgba8 color, std::string_view t) {
+  g_font->draw(s, x, top + px * 0.78f, t, px, color);
+}
+int text_w(std::string_view t, float px) { return g_font->measure(t, px); }
 
 // ---------------------------------------------------------------- 主题与基础组件
 
@@ -165,11 +174,10 @@ void pill(Surface& s, RectF r, Rgba8 fill, const char* label, Rgba8 label_color,
   const dl::DisplayList list = b.finish();
   raster::replay(list, s);
   if (label != nullptr) {
-    const int tw = text::measure(label, scale);
-    const int th = text::kGlyphH * scale;
-    text::draw_text(s, static_cast<int>(r.x + (r.w - static_cast<float>(tw)) * 0.5f),
-                    static_cast<int>(r.y + (r.h - static_cast<float>(th)) * 0.5f), scale,
-                    label_color, label);
+    const int tw = text_w(label, (scale) * 10.0f);
+    const int th = static_cast<int>((scale) * 10.0f * 0.72f);
+    text_at(s, r.x + (r.w - static_cast<float>(tw)) * 0.5f,
+            r.y + (r.h - static_cast<float>(th)) * 0.5f, (scale) * 10.0f, label_color, label);
   }
 }
 
@@ -211,8 +219,8 @@ Surface scene_dashboard(bool dark) {
   }
 
   // 标题 + 状态
-  text::draw_text(s, 72, 20, 2, t.text, "OVERVIEW");
-  text::draw_text(s, 72, 40, 1, t.text_dim, "REALTIME METRICS / LAST 24 HOURS");
+  text_at(s, 72, 20, (2) * 10.0f, t.text, "OVERVIEW");
+  text_at(s, 72, 40, (1) * 10.0f, t.text_dim, "REALTIME METRICS / LAST 24 HOURS");
   pill(s, RectF{400, 16, 64, 20}, t.accent_soft, "LIVE", t.accent, 1);
 
   // 三张统计卡
@@ -221,15 +229,13 @@ Surface scene_dashboard(bool dark) {
   for (int i = 0; i < 3; ++i) {
     const RectF r{72 + static_cast<float>(i) * 132, 64, 120, 64};
     card(s, r, 12.0f, t.surface, premul(t.shadow.r, t.shadow.g, t.shadow.b, dark ? 120 : 26), 10.0f);
-    text::draw_text(s, static_cast<int>(r.x + 12), static_cast<int>(r.y + 12), 1, t.text_dim,
-                    labels[i]);
-    text::draw_text(s, static_cast<int>(r.x + 12), static_cast<int>(r.y + 28), 2, t.text,
-                    values[i]);
+    text_at(s, static_cast<int>(r.x + 12), static_cast<int>(r.y + 12), (1) * 10.0f, t.text_dim, labels[i]);
+    text_at(s, static_cast<int>(r.x + 12), static_cast<int>(r.y + 28), (2) * 10.0f, t.text, values[i]);
     dl::Builder spark;
     const Rgba8 c = i == 2 ? t.danger : t.accent;
     for (int k = 0; k < 12; ++k) {
-      const float h = 4.0f + static_cast<float>((k * 7 + i * 5) % 10);
-      spark.fill_rect(RectF{r.x + 12 + static_cast<float>(k) * 8, r.y + 52 - h, 5, h},
+      const float h = 3.0f + static_cast<float>((k * 7 + i * 5) % 7);
+      spark.fill_rect(RectF{r.x + 12 + static_cast<float>(k) * 8, r.y + 58 - h, 5, h},
                       premul(c.r, c.g, c.b, 200));
     }
     const dl::DisplayList spark_list = spark.finish();
@@ -282,9 +288,8 @@ Surface scene_dashboard(bool dark) {
     dot.fill_circle(Vec2{list.x + 16, y + 5}, 4.0f, i == 0 ? t.ok : t.warn);
     const dl::DisplayList dot_list = dot.finish();
     raster::replay(dot_list, s);
-    text::draw_text(s, static_cast<int>(list.x + 28), static_cast<int>(y), 1, t.text, rows[i]);
-    text::draw_text(s, static_cast<int>(list.right() - 54), static_cast<int>(y), 1, t.text_dim,
-                    i == 0 ? "HEALTHY" : "DEGRADED");
+    text_at(s, static_cast<int>(list.x + 28), static_cast<int>(y), (1) * 10.0f, t.text, rows[i]);
+    text_at(s, list.right() - 54, y, 10.0f, t.text_dim, i == 0 ? "HEALTHY" : "DEGRADED");
   }
   return s;
 }
@@ -293,7 +298,7 @@ Surface scene_controls() {
   const Theme t = light_theme();
   Surface s(480, 300);
   s.fill(t.bg);
-  text::draw_text(s, 20, 16, 2, t.text, "CONTROLS");
+  text_at(s, 20, 16, (2) * 10.0f, t.text, "CONTROLS");
 
   // 按钮行
   pill(s, RectF{20, 44, 96, 32}, t.accent, "PRIMARY", premul(255, 255, 255), 1);
@@ -302,12 +307,12 @@ Surface scene_controls() {
   outline.fill_rrect(RectF{126.5f, 44.5f, 95, 31}, 16.0f, t.surface_alt);
   const dl::DisplayList outline_list = outline.finish();
   raster::replay(outline_list, s);
-  text::draw_text(s, 148, 56, 1, t.text, "SECONDARY");
+  text_at(s, 148, 56, (1) * 10.0f, t.text, "SECONDARY");
   pill(s, RectF{232, 44, 96, 32}, t.accent_soft, "GHOST", t.accent, 1);
   pill(s, RectF{338, 44, 96, 32}, t.surface_alt, "DISABLED", t.text_dim, 1);
 
   // 开关
-  text::draw_text(s, 20, 96, 1, t.text_dim, "TOGGLES");
+  text_at(s, 20, 96, (1) * 10.0f, t.text_dim, "TOGGLES");
   for (int i = 0; i < 2; ++i) {
     const RectF track{20 + static_cast<float>(i) * 60, 112, 44, 24};
     dl::Builder b;
@@ -322,7 +327,7 @@ Surface scene_controls() {
   }
 
   // 分段控件
-  text::draw_text(s, 20, 152, 1, t.text_dim, "SEGMENTED");
+  text_at(s, 20, 152, (1) * 10.0f, t.text_dim, "SEGMENTED");
   dl::Builder seg;
   seg.fill_rrect(RectF{20, 168, 176, 28}, 8.0f, t.surface_alt);
   const dl::DisplayList seg_l = seg.finish();
@@ -331,12 +336,12 @@ Surface scene_controls() {
   seg_sel.fill_rrect(RectF{22, 170, 56, 24}, 6.0f, t.surface);
   const dl::DisplayList seg_sel_l = seg_sel.finish();
   raster::replay(seg_sel_l, s);
-  text::draw_text(s, 32, 178, 1, t.text, "DAY");
-  text::draw_text(s, 96, 178, 1, t.text_dim, "WEEK");
-  text::draw_text(s, 152, 178, 1, t.text_dim, "MONTH");
+  text_at(s, 32, 178, (1) * 10.0f, t.text, "DAY");
+  text_at(s, 96, 178, (1) * 10.0f, t.text_dim, "WEEK");
+  text_at(s, 152, 178, (1) * 10.0f, t.text_dim, "MONTH");
 
   // 滑块
-  text::draw_text(s, 20, 210, 1, t.text_dim, "SLIDER");
+  text_at(s, 20, 210, (1) * 10.0f, t.text_dim, "SLIDER");
   dl::Builder track;
   track.fill_rrect(RectF{20, 228, 176, 6}, 3.0f, t.border);
   const dl::DisplayList track_l = track.finish();
@@ -351,7 +356,7 @@ Surface scene_controls() {
   raster::replay(thumb_l, s);
 
   // 徽章 / chips
-  text::draw_text(s, 20, 254, 1, t.text_dim, "BADGES");
+  text_at(s, 20, 254, (1) * 10.0f, t.text_dim, "BADGES");
   pill(s, RectF{20, 268, 52, 20}, t.accent_soft, "NEW", t.accent, 1);
   pill(s, RectF{80, 268, 62, 20}, premul(t.ok.r, t.ok.g, t.ok.b, 40), "DONE", t.ok, 1);
   pill(s, RectF{150, 268, 62, 20}, premul(t.warn.r, t.warn.g, t.warn.b, 48), "WARN", t.warn, 1);
@@ -364,10 +369,8 @@ Surface scene_controls() {
   const Vec2 center{panel.x + 80, panel.y + 70};
   ring(s, center, 46.0f, 12.0f, t.surface_alt);
   arc(s, center, 46.0f, 12.0f, -kPi * 0.5, kPi * 1.42, t.accent);
-  text::draw_text(s, static_cast<int>(center.x - 14), static_cast<int>(center.y - 7), 2, t.text,
-                  "71%");
-  text::draw_text(s, static_cast<int>(panel.x + 52), static_cast<int>(panel.y + 138), 1,
-                  t.text_dim, "CPU");
+  text_at(s, static_cast<int>(center.x - 14), static_cast<int>(center.y - 7), (2) * 10.0f, t.text, "71%");
+  text_at(s, static_cast<int>(panel.x + 52), static_cast<int>(panel.y + 138), (1) * 10.0f, t.text_dim, "CPU");
   return s;
 }
 
@@ -375,8 +378,8 @@ Surface scene_chart() {
   const Theme t = dark_theme();
   Surface s(480, 300);
   s.fill(t.bg);
-  text::draw_text(s, 20, 16, 2, t.text, "THROUGHPUT");
-  text::draw_text(s, 20, 38, 1, t.text_dim, "REQUESTS/SEC · 5MIN BUCKETS");
+  text_at(s, 20, 16, (2) * 10.0f, t.text, "THROUGHPUT");
+  text_at(s, 20, 38, (1) * 10.0f, t.text_dim, "REQUESTS/SEC · 5MIN BUCKETS");
 
   const RectF plot{24, 64, 432, 200};
   for (int i = 0; i <= 5; ++i) {
@@ -419,12 +422,12 @@ Surface scene_chart() {
   legend1.fill_rrect(RectF{24, 272, 10, 10}, 3.0f, t.accent);
   const dl::DisplayList l1 = legend1.finish();
   raster::replay(l1, s);
-  text::draw_text(s, 40, 274, 1, t.text_dim, "READS");
+  text_at(s, 40, 274, (1) * 10.0f, t.text_dim, "READS");
   dl::Builder legend2;
   legend2.fill_rrect(RectF{104, 272, 10, 10}, 3.0f, t.ok);
   const dl::DisplayList l2 = legend2.finish();
   raster::replay(l2, s);
-  text::draw_text(s, 120, 274, 1, t.text_dim, "WRITES");
+  text_at(s, 120, 274, (1) * 10.0f, t.text_dim, "WRITES");
   return s;
 }
 
@@ -432,8 +435,8 @@ Surface scene_inbox() {
   const Theme t = light_theme();
   Surface s(480, 300);
   s.fill(t.bg);
-  text::draw_text(s, 20, 16, 2, t.text, "INBOX");
-  text::draw_text(s, 400, 22, 1, t.accent, "3 NEW");
+  text_at(s, 20, 16, (2) * 10.0f, t.text, "INBOX");
+  text_at(s, 400, 22, (1) * 10.0f, t.accent, "3 NEW");
 
   const char* names[5] = {"ADA LOVELACE", "ALAN TURING", "GRACE HOPPER", "LINUS T", "MARGARET H"};
   const char* msgs[5] = {"SHIPPED THE RENDERER PATCH", "REVIEWED YOUR TILE CACHE PR",
@@ -447,12 +450,9 @@ Surface scene_inbox() {
     const dl::DisplayList av_l = av.finish();
     raster::replay(av_l, s);
     const char initial[2] = {names[i][0], '\0'};
-    text::draw_text(s, static_cast<int>(row.x + 24), static_cast<int>(row.y + 19), 1,
-                    premul(255, 255, 255), initial);
-    text::draw_text(s, static_cast<int>(row.x + 54), static_cast<int>(row.y + 10), 1,
-                    i < 3 ? t.text : t.text_dim, names[i]);
-    text::draw_text(s, static_cast<int>(row.x + 54), static_cast<int>(row.y + 26), 1,
-                    t.text_dim, msgs[i]);
+    text_at(s, static_cast<int>(row.x + 24), static_cast<int>(row.y + 19), (1) * 10.0f, premul(255, 255, 255), initial);
+    text_at(s, static_cast<int>(row.x + 54), static_cast<int>(row.y + 10), (1) * 10.0f, i < 3 ? t.text : t.text_dim, names[i]);
+    text_at(s, static_cast<int>(row.x + 54), static_cast<int>(row.y + 26), (1) * 10.0f, t.text_dim, msgs[i]);
     if (i < 3) {
       dl::Builder dot;
       dot.fill_circle(Vec2{row.right() - 24, row.y + 23}, 4.0f, t.accent);
@@ -467,9 +467,8 @@ Surface scene_aa() {
   const Theme t = light_theme();
   Surface s(480, 300);
   s.fill(t.bg);
-  text::draw_text(s, 20, 16, 2, t.text, "ANTIALIASING");
-  text::draw_text(s, 20, 38, 1, t.text_dim,
-                  "CIRCLES 1-20PX · RINGS · DIAGONALS · SUBPIXEL OFFSETS");
+  text_at(s, 20, 16, (2) * 10.0f, t.text, "ANTIALIASING");
+  text_at(s, 20, 38, (1) * 10.0f, t.text_dim, "CIRCLES 1-20PX · RINGS · DIAGONALS · SUBPIXEL OFFSETS");
 
   // 尺寸阶梯
   for (int i = 0; i < 10; ++i) {
@@ -508,11 +507,11 @@ Surface scene_aa() {
     raster::fill_polylines(s, p.points(), p.contour_ends(), t.accent, s.bounds());
   }
   // 文本缩放阶梯
-  const int scales[3] = {1, 2, 3};
-  int y = 236;
+  const float sizes[3] = {9.0f, 14.0f, 22.0f};
+  float ty = 252.0f;
   for (int i = 2; i >= 0; --i) {
-    text::draw_text(s, 400, y - text::kGlyphH * scales[i], scales[i], t.text, "NQ");
-    y -= text::kGlyphH * scales[i] + 4;
+    text_at(s, 396, ty - sizes[i], sizes[i], t.text, "NQ");
+    ty -= sizes[i] + 6.0f;
   }
   return s;
 }
@@ -521,10 +520,10 @@ Surface scene_icons() {
   const Theme t = dark_theme();
   Surface s(480, 300);
   s.fill(t.bg);
-  text::draw_text(s, 20, 16, 2, t.text, "ICON SET");
-  text::draw_text(s, 20, 38, 1, t.text_dim, "PATHS ONLY · NO BITMAPS");
+  text_at(s, 20, 16, (2) * 10.0f, t.text, "ICON SET");
+  text_at(s, 20, 38, (1) * 10.0f, t.text_dim, "PATHS ONLY · NO BITMAPS");
 
-  auto tile = [&](int col, int row, Rgba8 accent) {
+  auto tile = [&](int col, int row) {
     const RectF r{20.0f + static_cast<float>(col) * 88.0f, 64.0f + static_cast<float>(row) * 78.0f,
                   76, 66};
     card(s, r, 12.0f, t.surface, premul(0, 0, 0, 90), 8.0f);
@@ -533,7 +532,7 @@ Surface scene_icons() {
 
   // 播放三角
   {
-    const Vec2 c = tile(0, 0, t.accent);
+    const Vec2 c = tile(0, 0);
     dl::PathBuilder p;
     p.move_to({c.x - 8, c.y - 11});
     p.line_to({c.x + 12, c.y});
@@ -543,7 +542,7 @@ Surface scene_icons() {
   }
   // 停止方块
   {
-    const Vec2 c = tile(1, 0, t.ok);
+    const Vec2 c = tile(1, 0);
     dl::Builder b;
     b.fill_rrect(RectF{c.x - 10, c.y - 10, 20, 20}, 4.0f, t.ok);
     const dl::DisplayList l = b.finish();
@@ -551,7 +550,7 @@ Surface scene_icons() {
   }
   // 加号
   {
-    const Vec2 c = tile(2, 0, t.warn);
+    const Vec2 c = tile(2, 0);
     dl::Builder b;
     b.fill_rrect(RectF{c.x - 2, c.y - 11, 4, 22}, 2.0f, t.warn);
     b.fill_rrect(RectF{c.x - 11, c.y - 2, 22, 4}, 2.0f, t.warn);
@@ -560,7 +559,7 @@ Surface scene_icons() {
   }
   // 勾
   {
-    const Vec2 c = tile(3, 0, t.accent);
+    const Vec2 c = tile(3, 0);
     dl::PathBuilder p;
     p.move_to({c.x - 11, c.y});
     p.line_to({c.x - 3, c.y + 8});
@@ -569,7 +568,7 @@ Surface scene_icons() {
   }
   // 箭头
   {
-    const Vec2 c = tile(4, 0, t.text);
+    const Vec2 c = tile(4, 0);
     dl::PathBuilder p;
     p.move_to({c.x - 8, c.y - 8});
     p.line_to({c.x + 8, c.y});
@@ -578,12 +577,12 @@ Surface scene_icons() {
   }
   // 圆环
   {
-    const Vec2 c = tile(0, 1, t.accent);
+    const Vec2 c = tile(0, 1);
     ring(s, c, 12.0f, 4.0f, t.accent);
   }
   // 三横线（菜单）
   {
-    const Vec2 c = tile(1, 1, t.text_dim);
+    const Vec2 c = tile(1, 1);
     for (int i = -1; i <= 1; ++i) {
       dl::Builder b;
       b.fill_rrect(RectF{c.x - 11, c.y + static_cast<float>(i) * 6 - 1.5f, 22, 3}, 1.5f,
@@ -594,7 +593,7 @@ Surface scene_icons() {
   }
   // 心形（贝塞尔）
   {
-    const Vec2 c = tile(2, 1, t.danger);
+    const Vec2 c = tile(2, 1);
     dl::PathBuilder p;
     p.move_to({c.x, c.y + 10});
     p.cubic_to({c.x - 16, c.y - 2}, {c.x - 8, c.y - 14}, {c.x, c.y - 5});
@@ -604,7 +603,7 @@ Surface scene_icons() {
   }
   // 网格
   {
-    const Vec2 c = tile(3, 1, t.ok);
+    const Vec2 c = tile(3, 1);
     for (int gy = 0; gy < 2; ++gy) {
       for (int gx = 0; gx < 2; ++gx) {
         dl::Builder b;
@@ -618,7 +617,7 @@ Surface scene_icons() {
   }
   // 放大镜
   {
-    const Vec2 c = tile(0, 2, t.accent);
+    const Vec2 c = tile(0, 2);
     ring(s, {c.x - 2, c.y - 2}, 10.0f, 3.0f, t.accent);
     dl::PathBuilder p;
     p.move_to({c.x + 5, c.y + 5});
@@ -627,7 +626,7 @@ Surface scene_icons() {
   }
   // 铃铛
   {
-    const Vec2 c = tile(1, 2, t.warn);
+    const Vec2 c = tile(1, 2);
     dl::PathBuilder p;
     p.move_to({c.x - 9, c.y + 6});
     p.cubic_to({c.x - 9, c.y - 12}, {c.x + 9, c.y - 12}, {c.x + 9, c.y + 6});
@@ -640,7 +639,7 @@ Surface scene_icons() {
   }
   // 星形
   {
-    const Vec2 c = tile(2, 2, t.warn);
+    const Vec2 c = tile(2, 2);
     dl::PathBuilder p;
     for (int i = 0; i < 10; ++i) {
       const float r = (i % 2 == 0) ? 13.0f : 5.5f;
@@ -657,7 +656,7 @@ Surface scene_icons() {
   }
   // 时钟
   {
-    const Vec2 c = tile(3, 2, t.text);
+    const Vec2 c = tile(3, 2);
     ring(s, c, 12.0f, 2.5f, t.text);
     dl::PathBuilder p;
     p.move_to({c.x, c.y - 6});
@@ -667,7 +666,7 @@ Surface scene_icons() {
   }
   // 锁
   {
-    const Vec2 c = tile(4, 2, t.ok);
+    const Vec2 c = tile(4, 2);
     dl::Builder b;
     b.fill_rrect(RectF{c.x - 9, c.y - 2, 18, 14}, 3.0f, t.ok);
     const dl::DisplayList l = b.finish();
@@ -681,7 +680,7 @@ Surface scene_icons() {
   }
   // 柱状图图标
   {
-    const Vec2 c = tile(4, 1, t.accent);
+    const Vec2 c = tile(4, 1);
     const float heights[3] = {10, 18, 13};
     for (int i = 0; i < 3; ++i) {
       dl::Builder b;
@@ -699,8 +698,8 @@ Surface scene_clip_shadow() {
   const Theme t = dark_theme();
   Surface s(480, 300);
   s.fill(t.bg);
-  text::draw_text(s, 20, 16, 2, t.text, "CLIP & SHADOW");
-  text::draw_text(s, 20, 38, 1, t.text_dim, "NESTED ROUNDED CLIPS · MASK BLUR SHADOWS");
+  text_at(s, 20, 16, (2) * 10.0f, t.text, "CLIP & SHADOW");
+  text_at(s, 20, 38, (1) * 10.0f, t.text_dim, "NESTED ROUNDED CLIPS · MASK BLUR SHADOWS");
 
   // 嵌套圆角裁剪：外层 20px 圆角，内层再裁一个 60px 圆角方块
   const RectF panel{24, 64, 200, 200};
@@ -737,8 +736,7 @@ Surface scene_clip_shadow() {
     card(s, r, 10.0f, t.surface, premul(0, 0, 0, 170), blurs[i]);
     char label[32];
     std::snprintf(label, sizeof(label), "BLUR %d", static_cast<int>(blurs[i]));
-    text::draw_text(s, static_cast<int>(r.x + 12), static_cast<int>(r.y + 16), 1, t.text_dim,
-                    label);
+    text_at(s, static_cast<int>(r.x + 12), static_cast<int>(r.y + 16), (1) * 10.0f, t.text_dim, label);
   }
 
   // 圆角进度条
@@ -787,6 +785,14 @@ int usage() {
 }  // namespace
 
 int main(int argc, char** argv) {
+  auto font_result = nq::text::Font::load_file(NQ_BUNDLED_FONT);
+  if (!font_result) {
+    std::fprintf(stderr, "cannot load bundled font: %s\n", NQ_BUNDLED_FONT);
+    return 1;
+  }
+  nq::text::Font* font = font_result->get();
+  g_font = font;
+
   std::string out_dir = "showcase";
   std::string only = "all";
   bool write_png_files = true;

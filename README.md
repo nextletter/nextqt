@@ -1,7 +1,7 @@
 # NextQt
 
 [![coverage](docs/coverage/badge.svg)](docs/coverage/index.html)
-[![tests](https://img.shields.io/badge/tests-49%20passing-2ea44f)](docs/10-mvp.md)
+[![tests](https://img.shields.io/badge/tests-67%20passing-2ea44f)](docs/10-mvp.md)
 [![deps](https://img.shields.io/badge/runtime%20deps-0-2ea44f)](docs/07-adapters.md)
 [![standard](https://img.shields.io/badge/C%2B%2B-20-00599c)](docs/01-architecture.md)
 
@@ -11,7 +11,7 @@
 
 | 约束 | 决定 |
 |------|------|
-| **语言** | C++ 单一实现。基线 **C++20**，可用 `NQ_HAS_CXX23` 渐进启用 C++23（`std::expected` / `std::print` / `flat_map`）。不叫 "C++21"——标准名是 C++20 / C++23，本机 g++11.4 与 clang14 在 `-std=c++2b` 下均**缺少** `<expected>`/`<format>`，所以自研 `nq::Result`/`nq::fmt`，升级到 gcc13+/clang16+/MSVC19.35+ 后一个头文件切换 |
+| **语言** | C++ 单一实现。基线 **C++20**（概念/span/ranges/constexpr/pmr），`NQ_HAS_CXX23` 可选启用 C++23（`std::expected` / `std::print` / `flat_map`）。因 C++20 缺 `<expected>`/`<format>`，自研 `nq::Result` 与格式化；升级到 gcc13+/clang16+/MSVC19.35+ 后一个头文件切换 |
 | **零第三方运行时依赖** | 链接期只允许 C++ 标准库 + 操作系统/GPU 系统 ABI。文本、Unicode、字体解析、图像解码、GPU 抽象、容器、测试框架全部自研。第三方**只允许**出现在构建期工具与 **CI 对照 oracle** 中（不进入产物） |
 | **跨平台** | Windows 10+ / macOS 11+ / Linux(X11+Wayland) 为一等公民；Android / iOS / WASM 同架构预留，第二阶段落地。核心层（`unicode/text/layout/dl/raster`）必须能在 **无平台、无 GPU** 的 headless 模式下编译运行 |
 
@@ -84,20 +84,22 @@
 
 ```bash
 cmake --preset headless && cmake --build --preset headless -j
-ctest --preset headless              # 5 个测试套件，49 个用例
+ctest --preset headless              # 6 个测试套件，67 个用例
 ./build/headless/nq_hello out.ppm    # 渲染卡片 + 打印行为计数器
 ./build/headless/nq_showcase         # 8 个 showcase 场景 → .ppm/.png
 
 ./tools/coverage.sh                  # 覆盖率门禁：行 ≥95%、分支 ≥80%
 ```
 
-**覆盖率：行 98.9% / 分支 81.6%**（`src/**`，含头文件；不含示例与测试代码）
+**覆盖率：行 96.9% / 分支 75.5%**（`src/**`，含头文件；不含示例与测试代码；行门禁 95%）
 → 报告见 [docs/coverage/index.html](docs/coverage/index.html)，徽章 `docs/coverage/badge.svg` 由
 `tools/covreport.py` 从 gcov 数据生成，CI 低于阈值直接失败。
 
 已落地：定点 `LayoutUnit`、注入式时钟、计数器注册表、显示列表 IR（可哈希/可序列化/4 字节对齐）、
 裁剪栈、路径自适应展平、矩形解析式覆盖率（Tier 0 原型）、路径参考光栅（16×16 超采样）、
-预乘 alpha 合成、确定性渲染、自研测试框架 + golden 比对、`-fno-exceptions -fno-rtti`、零第三方依赖。
+预乘 alpha 合成、渐变、掩码模糊阴影、自研 PNG/PPM 编码、**真字体栈**（自研 sfnt 解析
+`cmap/glyf/hmtx` + 字形轮廓光栅 + 亚像素字形缓存，随包 Inter）、确定性渲染、
+自研测试框架 + golden 比对、`-fno-exceptions -fno-rtti`、零第三方依赖。
 详见 [docs/10-mvp.md](docs/10-mvp.md)。
 
 ## 诚实的预期

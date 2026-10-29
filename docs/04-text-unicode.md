@@ -109,6 +109,11 @@ Tier 之外的脚本**回退到逐字符渲染并明确标记**（devtools 显�
 
 ## 8. 字体解析（`src/font`）
 
+> **当前实现状态（M1 第一片）**：已支持 `sfnt`(0x00010000/'true')、`cmap` 格式 4/12、
+> `loca`(short/long)、`glyf`（简单 + 复合，含 F2Dot14 变换与递归深度限制）、`hmtx`、`hhea`、`head`、`maxp`、`name`。
+> 字形轮廓 → 二次贝塞尔自适应展平 → 覆盖率掩码 → 4× 亚像素字形缓存（LRU + 预算 + 命中率计数器）。
+> 待办：CFF/CFF2、变体（gvar/HVAR）、COLR、GSUB/GPOS（§7）、WOFF2。
+
 | 能力 | 表 | 备注 |
 |------|----|------|
 | 容器 | `sfnt`、`ttcf`（TTC）、WOFF1 | WOFF2 需 brotli 解压，推迟到 M9（自研 brotli 解码器或构建期解压） |

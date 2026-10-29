@@ -95,4 +95,4 @@ class [[nodiscard]] Result {
   auto NQ_CONCAT(_nq_try_, __LINE__) = (expr);                              \
   if (!NQ_CONCAT(_nq_try_, __LINE__))                                       \
     return NQ_CONCAT(_nq_try_, __LINE__).status();                          \
-  auto var = *std::move(NQ_CONCAT(_nq_try_, __LINE__))
+  auto var = std::move(*NQ_CONCAT(_nq_try_, __LINE__))

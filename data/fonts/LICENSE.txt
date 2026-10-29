@@ -1,0 +1,9 @@
+Inter-Regular.ttf
+=================
+Copyright (c) 2016 The Inter Project Authors (https://github.com/rsms/inter)
+
+Licensed under the SIL Open Font License, Version 1.1 (see OFL.txt in this directory).
+The font is bundled so that NextQt's rendering is deterministic across platforms
+(system font differences must not change layout or pixels — see docs/01-architecture.md §8).
+
+来源/来源版本: Google Fonts 分发的 Inter v20 静态实例（TrueType, glyf 轮廓）。

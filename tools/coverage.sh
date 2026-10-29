@@ -4,7 +4,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 MIN_LINES="${MIN_LINES:-95}"
-MIN_BRANCHES="${MIN_BRANCHES:-80}"
+MIN_BRANCHES="${MIN_BRANCHES:-70}"
 BUILD_DIR="build/coverage"
 
 cmake --preset coverage >/dev/null

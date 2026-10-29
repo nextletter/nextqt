@@ -44,18 +44,30 @@ if(NQ_GOLDEN AND NOT MSVC)
   target_compile_options(nq_raster PRIVATE -ffp-contract=off)
 endif()
 
-# 文本层（M0 为位图占位；M1 起替换为 Unicode/整形/字体栈，接口不变）
-add_library(nq_text STATIC src/text/bitmap_font.cpp)
-target_link_libraries(nq_text PUBLIC nq_raster)
+# 字体层：sfnt 解析（cmap/glyf/hmtx），零第三方依赖
+add_library(nq_font STATIC src/font/sfnt.cpp)
+target_link_libraries(nq_font PUBLIC nq_base)
+nq_engine_flags(nq_font)
+
+# 文本层：真字体轮廓 → 抗锯齿字形掩码缓存（bitmap_font 保留为调试用位图字体）
+add_library(nq_text STATIC
+  src/text/font.cpp
+  src/text/bitmap_font.cpp
+)
+target_link_libraries(nq_text PUBLIC nq_font nq_raster)
 nq_engine_flags(nq_text)
+
+set(NQ_BUNDLED_FONT "${CMAKE_CURRENT_SOURCE_DIR}/data/fonts/Inter-Regular.ttf")
 
 if(NQ_BUILD_EXAMPLES)
   add_executable(nq_hello examples/hello_card.cpp)
   target_link_libraries(nq_hello PRIVATE nq_text)
+  target_compile_definitions(nq_hello PRIVATE NQ_BUNDLED_FONT="${NQ_BUNDLED_FONT}")
   nq_engine_flags(nq_hello)
 
   add_executable(nq_showcase examples/showcase.cpp)
   target_link_libraries(nq_showcase PRIVATE nq_text)
+  target_compile_definitions(nq_showcase PRIVATE NQ_BUNDLED_FONT="${NQ_BUNDLED_FONT}")
   nq_engine_flags(nq_showcase)
 endif()
 
@@ -67,13 +79,14 @@ if(NQ_BUILD_TESTS)
   enable_testing()
   file(MAKE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/tests/golden")
 
-  foreach(test_name base dl raster golden more)
+  foreach(test_name base dl raster golden more font)
     add_executable(test_${test_name} tests/test_${test_name}.cpp)
     target_link_libraries(test_${test_name} PRIVATE nq_text nqtest)
     target_include_directories(test_${test_name} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/tests")
     target_compile_definitions(test_${test_name} PRIVATE
       NQ_GOLDEN_DIR="${CMAKE_CURRENT_SOURCE_DIR}/tests/golden"
       NQ_BUILD_DIR="${CMAKE_CURRENT_BINARY_DIR}"
+      NQ_BUNDLED_FONT="${NQ_BUNDLED_FONT}"
     )
     nq_engine_flags(test_${test_name})
     add_test(NAME ${test_name} COMMAND test_${test_name})

@@ -258,10 +258,12 @@ def main() -> int:
         print(f"no .gcno under {build}; build with --coverage first", file=sys.stderr)
         return 1
 
+    # 注意：即使是 tests/ 与 examples/ 的翻译单元，也要跑 gcov ——
+    # 这样它们对 src/**/*.h 的覆盖才会被计入；分母仍由 classify() 限制在 src/。
     cov: dict[str, FileCov] = {}
     for gcno in gcno_files:
         rel = source_for(gcno, src_root)
-        if rel is None or rel.startswith(EXCLUDE_PREFIXES):
+        if rel is None:
             continue
         payload = run_gcov(gcno, src_root, rel)
         if payload is not None:
