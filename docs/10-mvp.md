@@ -4,7 +4,7 @@
 
 ```bash
 cmake --preset headless && cmake --build --preset headless -j
-ctest --preset headless                    # 6 个测试套件 / 67 个用例，全绿
+ctest --preset headless                    # 7 个测试套件 / 73 个用例，全绿
 
 ./build/headless/nq_hello out.ppm          # 渲染一张卡片并打印计数器
 ./build/headless/nq_showcase               # 8 个 showcase 场景（见 docs/11-showcase.md）
@@ -37,7 +37,9 @@ ctest --preset headless                    # 6 个测试套件 / 67 个用例，
 | 确定性渲染 | 全链路 | 同一场景两次渲染 `content_hash` 相同 |
 | golden 测试（自研 runner + `--update-golden`） | `tests/golden_testing.h` | `tests/golden/card_scene.ppm` 逐字节比对 |
 | 零第三方依赖 | 全部 | 仅 C++ 标准库 + libc |
-| 覆盖率门禁 | `tools/covreport.py` + `tools/coverage.sh` | 行 96.86%（1451/1498）、分支 75.49%（816/1081），行门禁 95% |
+| 覆盖率门禁 | `tools/covreport.py` + `tools/coverage.sh` | 行 97.07%（1691/1742）、分支 78.82%（1072/1360），行门禁 95% |
+| **Unicode 表** | `tools/ucdgen/ucdgen.py` → `src/unicode/unicode_tables.*` | Unicode 16.0：GCB / InCB / LineBreak / Bidi / GeneralCategory / ExtPict，两级 trie + 块去重，约 196 KiB |
+| **UAX#29 分段** | `src/unicode/grapheme.cpp` | GB1–GB13（含 GB9c Indic conjunct、GB11 emoji ZWJ、GB12/13 旗帜），官方 conformance **1093/1093** |
 | **真字体栈** | `src/font/sfnt.cpp` + `src/text/font.cpp` | 自研 sfnt/cmap(4,12)/loca/glyf/hmtx 解析；字形轮廓 → 覆盖率掩码；4× 亚像素定位；LRU 字形缓存（含命中/驱逐计数器） |
 | 随包字体 | `data/fonts/Inter-Regular.ttf`（SIL OFL） | 跨平台像素一致的前提：不依赖系统字体 |
 | Showcase | `examples/showcase.cpp` | 8 个 480×300 场景，含哈希；见 docs/11-showcase.md |
@@ -70,14 +72,14 @@ ctest --preset headless                    # 6 个测试套件 / 67 个用例，
 ## 5. 下一步（M1 入口）
 
 1. **光栅 Tier 1**：小路径 → A8 掩码 atlas（键 `(path_hash, scale_bucket)`），把图标与圆角变成一次实例化贴图；同时把 `kSupersample` 降到 1（解析累积覆盖率），让 golden 从"可容忍"变为"精确"。
-2. **Unicode 表生成**（`tools/ucdgen`，已确认 UCD 16.0 可获取、sha256 已核对）：先落 general category / script / grapheme / line break 四张表 + `GraphemeBreakTest.txt` 100%。
+2. ~~Unicode 表生成（`tools/ucdgen`）~~ ✅ 已完成；下一步：LineBreak（UAX#14）+ Bidi（UAX#9）：先落 general category / script / grapheme / line break 四张表 + `GraphemeBreakTest.txt` 100%。
 3. **sfnt 解析**：`cmap(4,12)` + `glyf/loca` + `hmtx`，渲染单字体单脚本的 A8 字形，替换占位字形。
 4. **布局骨架**：`Row/Column/Stack + LayoutUnit` + 布局根与 fragment 缓存，用计数器断言"1% 脏区只访问 N 个节点"。
 
 ## 6. 提交校验清单（已经通过）
 
-- `ctest --preset headless`：6/6 套件（67 用例）
-- `ctest --preset dev`（`-Werror`）：6/6
-- `tools/coverage.sh`：行 96.86% / 分支 75.49%，行门禁 95% 通过
+- `ctest --preset headless`：7/7 套件（73 用例）
+- `ctest --preset dev`（`-Werror`）：7/7
+- `tools/coverage.sh`：行 97.07% / 分支 78.82%，行门禁 95% 通过
 - 无第三方依赖：`ldd build/headless/nq_hello` 只含 libc/libstdc++
 - 单次 `cmake --build` 全量 < 10 s（4 核）

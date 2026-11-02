@@ -1,7 +1,7 @@
 # NextQt
 
 [![coverage](docs/coverage/badge.svg)](docs/coverage/index.html)
-[![tests](https://img.shields.io/badge/tests-67%20passing-2ea44f)](docs/10-mvp.md)
+[![tests](https://img.shields.io/badge/tests-73%20passing-2ea44f)](docs/10-mvp.md)
 [![deps](https://img.shields.io/badge/runtime%20deps-0-2ea44f)](docs/07-adapters.md)
 [![standard](https://img.shields.io/badge/C%2B%2B-20-00599c)](docs/01-architecture.md)
 
@@ -84,20 +84,21 @@
 
 ```bash
 cmake --preset headless && cmake --build --preset headless -j
-ctest --preset headless              # 6 个测试套件，67 个用例
+ctest --preset headless              # 7 个测试套件，73 个用例
 ./build/headless/nq_hello out.ppm    # 渲染卡片 + 打印行为计数器
 ./build/headless/nq_showcase         # 8 个 showcase 场景 → .ppm/.png
 
 ./tools/coverage.sh                  # 覆盖率门禁：行 ≥95%、分支 ≥80%
 ```
 
-**覆盖率：行 96.9% / 分支 75.5%**（`src/**`，含头文件；不含示例与测试代码；行门禁 95%）
+**覆盖率：行 97.1% / 分支 78.8%**（`src/**`，含头文件；不含示例与测试代码；行门禁 95%）
 → 报告见 [docs/coverage/index.html](docs/coverage/index.html)，徽章 `docs/coverage/badge.svg` 由
 `tools/covreport.py` 从 gcov 数据生成，CI 低于阈值直接失败。
 
 已落地：定点 `LayoutUnit`、注入式时钟、计数器注册表、显示列表 IR（可哈希/可序列化/4 字节对齐）、
 裁剪栈、路径自适应展平、矩形解析式覆盖率（Tier 0 原型）、路径参考光栅（16×16 超采样）、
-预乘 alpha 合成、渐变、掩码模糊阴影、自研 PNG/PPM 编码、**真字体栈**（自研 sfnt 解析
+预乘 alpha 合成、渐变、掩码模糊阴影、自研 PNG/PPM 编码、
+**Unicode 16.0 表 + UAX#29 字素分段（官方 conformance 1093/1093 = 100%）**、**真字体栈**（自研 sfnt 解析
 `cmap/glyf/hmtx` + 字形轮廓光栅 + 亚像素字形缓存，随包 Inter）、确定性渲染、
 自研测试框架 + golden 比对、`-fno-exceptions -fno-rtti`、零第三方依赖。
 详见 [docs/10-mvp.md](docs/10-mvp.md)。

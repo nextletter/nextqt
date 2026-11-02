@@ -33,6 +33,11 @@ src/edit      rope/选区/caret/undo/IME 组合/marked text      (状态机)
 
 ## 3. Unicode 数据与表生成（`tools/ucdgen`）
 
+> **当前实现状态**：Unicode **16.0.0** 表已生成并入 `src/unicode/unicode_tables.{h,cpp}`
+> （GCB 30 KiB / InCB 27 KiB / LineBreak 48 KiB / Bidi 37 KiB / GeneralCategory 48 KiB / ExtPict 6 KiB，
+> 合计约 196 KiB + stage1）。生成器 `tools/ucdgen/ucdgen.py` 带 sha256 校验，可离线重建。
+> 已实现：UAX#29 字素分段（GB1–GB13 含 GB9c/GB11），官方 `GraphemeBreakTest` **1093/1093 通过**。
+
 输入（`data/ucd/<version>/`，纯数据文件，非代码依赖）：
 
 `UnicodeData.txt` `Scripts.txt` `ScriptExtensions.txt` `LineBreak.txt` `EastAsianWidth.txt`
@@ -60,10 +65,10 @@ src/edit      rope/选区/caret/undo/IME 组合/marked text      (状态机)
 
 | 分段 | 算法 | 用途 |
 |------|------|------|
-| Grapheme | 状态机（含 emoji ZWJ 序列、区域旗帜、扩展字形簇） | 光标移动、删除、选区 |
-| Word | 状态机（含 CJK 词边界近似、URL/邮箱启发式） | 双击选词、搜索 |
-| Sentence | 状态机 | 无障碍朗读、摘要 |
-| **Line break** | UAX #14 成对表 + **可选的 CJK 避头尾/西文孤儿词**定制 | 断行 |
+| Grapheme | ✅ 已实现（GB1–GB13：emoji ZWJ、区域旗帜、Indic conjunct、Hangul） | 光标移动、删除、选区 |
+| Word | 待实现（CJK 词边界近似、URL/邮箱启发式） | 双击选词、搜索 |
+| Sentence | 待实现 | 无障碍朗读、摘要 |
+| **Line break** | 表已生成，算法待实现（UAX #14 + CJK 避头尾定制） | 断行 |
 
 **性能关键**：断行机会表**只依赖文本内容，不依赖宽度**。段落缓存的键是文本哈希；改变宽度时只做一次贪心/DP 分配，不做重新整形 —— 这是窗口拉伸能保持 60fps 的原因。
 

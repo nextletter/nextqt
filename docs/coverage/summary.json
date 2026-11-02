@@ -1,13 +1,13 @@
 {
   "lines": {
-    "hit": 1451,
-    "total": 1498,
-    "percent": 96.86
+    "hit": 1691,
+    "total": 1742,
+    "percent": 97.07
   },
   "branches": {
-    "hit": 816,
-    "total": 1081,
-    "percent": 75.49
+    "hit": 1072,
+    "total": 1360,
+    "percent": 78.82
   },
   "thresholds": {
     "min_lines": 95.0,
@@ -110,8 +110,8 @@
         "total": 59
       },
       "branches": {
-        "hit": 40,
-        "total": 54
+        "hit": 57,
+        "total": 78
       }
     },
     "src/dl/display_list.cpp": {
@@ -222,6 +222,36 @@
       "branches": {
         "hit": 83,
         "total": 114
+      }
+    },
+    "src/unicode/grapheme.cpp": {
+      "lines": {
+        "hit": 87,
+        "total": 88
+      },
+      "branches": {
+        "hit": 97,
+        "total": 98
+      }
+    },
+    "src/unicode/unicode_tables.cpp": {
+      "lines": {
+        "hit": 21,
+        "total": 21
+      },
+      "branches": {
+        "hit": 20,
+        "total": 32
+      }
+    },
+    "src/unicode/unicode_tables.h": {
+      "lines": {
+        "hit": 132,
+        "total": 135
+      },
+      "branches": {
+        "hit": 122,
+        "total": 125
       }
     }
   }
